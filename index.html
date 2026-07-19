@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#E9EAEC">
+<title>SAT · Aug 22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#E9EAEC; --card:rgba(246,246,247,.78); --panel:#FFFFFF;
+    --ink:#101113; --sub:#6C7076; --dim:#9DA1A8; --line:rgba(16,17,19,.09);
+    --r:22px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Helvetica Neue",sans-serif;
+    font-size:15px; line-height:1.55; min-height:100vh; padding:28px 14px 80px;
+    background-image:
+      linear-gradient(rgba(16,17,19,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(16,17,19,.05) 1px, transparent 1px);
+    background-size:88px 88px;
+    position:relative; overflow-x:hidden;
+  }
+  /* blurred gradient blobs */
+  .blob{position:fixed; border-radius:50%; filter:blur(90px); z-index:0; pointer-events:none;}
+  .b1{width:420px; height:420px; background:#FFC9A8; opacity:.55; top:-80px; right:-120px;}
+  .b2{width:380px; height:380px; background:#AFC4FF; opacity:.5; bottom:-60px; left:-140px;}
+  .b3{width:300px; height:300px; background:#E3C4FF; opacity:.45; top:38%; right:-100px;}
+
+  .frame{
+    position:relative; z-index:1; max-width:600px; margin:0 auto;
+    background:var(--card); backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+    border:1px solid rgba(255,255,255,.65); border-radius:var(--r);
+    box-shadow:0 24px 60px rgba(16,17,19,.14), 0 2px 8px rgba(16,17,19,.05);
+    padding:0 0 28px;
+  }
+  /* window chrome */
+  .chrome{display:flex; justify-content:space-between; align-items:center; padding:16px 20px 0;}
+  .lights{display:flex; gap:7px;}
+  .lights i{width:11px; height:11px; border-radius:50%;}
+  .lights i:nth-child(1){background:#FF5F57;} .lights i:nth-child(2){background:#FEBC2E;} .lights i:nth-child(3){background:#28C840;}
+  .glyphs{color:var(--dim); font-size:14px; letter-spacing:6px; user-select:none;}
+
+  .inner{padding:10px 24px 0;}
+
+  /* hero */
+  .hero-label{font-size:12px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); margin-top:18px;}
+  .hero{font-family:"Inter Tight","Helvetica Neue",sans-serif; font-weight:800; letter-spacing:-.045em;
+    font-size:clamp(64px,17vw,104px); line-height:.95; margin-top:4px;}
+  .hero small{font-family:"Inter",sans-serif; font-size:16px; font-weight:500; letter-spacing:0; color:var(--sub); margin-left:8px;}
+  .hero-sub{color:var(--sub); font-size:14px; margin-top:10px; max-width:40ch;}
+  .progress{height:6px; background:rgba(16,17,19,.08); border-radius:999px; margin:20px 0 8px; overflow:hidden;}
+  .progress i{display:block; height:100%; background:var(--ink); border-radius:999px; transition:width .3s ease;}
+  .metaline{display:flex; gap:20px; font-size:13px; color:var(--sub);}
+  .metaline b{color:var(--ink); font-weight:700;}
+
+  /* today panel */
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:16px; margin-top:24px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(16,17,19,.04);}
+  .panel-head{padding:16px 18px 10px; display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .daydate{font-family:"Inter Tight",sans-serif; font-weight:700; font-size:17px; letter-spacing:-.02em;}
+  .chip{font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; border:1px solid var(--line); color:var(--sub); white-space:nowrap;}
+  .chip.test{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .chip.vn{border-style:dashed; color:var(--ink);}
+  .tasklist{padding:2px 8px 8px;}
+  .task{display:flex; gap:12px; align-items:flex-start; padding:11px 10px; border-radius:10px; cursor:pointer;}
+  @media(hover:hover){ .task:hover{background:rgba(16,17,19,.03);} }
+  .task input{appearance:none; -webkit-appearance:none; width:20px; height:20px; min-width:20px;
+    border:1.5px solid rgba(16,17,19,.28); border-radius:50%; background:transparent; cursor:pointer; position:relative; margin-top:1px;
+    transition:all .12s ease;}
+  .task input:checked{background:var(--ink); border-color:var(--ink);}
+  .task input:checked::after{content:""; position:absolute; left:6px; top:3px; width:5px; height:9px;
+    border:solid #fff; border-width:0 2px 2px 0; transform:rotate(42deg);}
+  .task.checked .tasktext{color:var(--dim); text-decoration:line-through;}
+  .tasktext{font-size:14.5px;}
+  .doneBadge{margin:2px 18px 14px; display:inline-flex; align-items:center; gap:7px;
+    font-size:12.5px; font-weight:700; color:#fff; background:var(--ink);
+    padding:6px 14px; border-radius:999px;}
+  .navrow{display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding:0 4px;}
+  .navbtn{font-family:inherit; font-size:13px; font-weight:600; background:none; border:none;
+    color:var(--sub); cursor:pointer; padding:8px 6px;}
+  .navbtn:hover{color:var(--ink);}
+  .navbtn:disabled{color:rgba(16,17,19,.18); cursor:default;}
+  .navbtn.mid{color:var(--ink); text-decoration:underline; text-underline-offset:3px;}
+
+  /* grid */
+  h2{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); margin:34px 0 12px;}
+  .strip{display:grid; grid-template-columns:repeat(17,1fr); gap:5px;}
+  .cell{aspect-ratio:1; border-radius:7px; background:var(--panel); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    font-size:9.5px; font-weight:600; color:var(--dim); transition:transform .08s ease;}
+  .cell:hover{transform:scale(1.1);}
+  .cell.done{background:var(--ink); border-color:var(--ink); color:#fff;}
+  .cell.today{box-shadow:0 0 0 2px var(--bg), 0 0 0 3.5px var(--ink);}
+  .cell.viewing:not(.done){border-color:var(--ink); color:var(--ink);}
+  .cell.testday:not(.done){border-width:1.5px; border-color:var(--ink); color:var(--ink); font-weight:700;}
+  .cell.vn:not(.done){border-style:dashed;}
+  .gridlegend{display:flex; gap:16px; font-size:11.5px; color:var(--dim); margin-top:10px; flex-wrap:wrap;}
+  .gridlegend em{font-style:normal;}
+
+  /* settings */
+  .setcard{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:4px 18px;}
+  .setrow{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 0; flex-wrap:wrap;}
+  .setrow label{font-weight:600; font-size:14px;}
+  .setrow small{display:block; color:var(--sub); font-size:12.5px; font-weight:400; margin-top:1px;}
+  input[type="time"]{font-family:inherit; font-size:14px; background:var(--bg); border:1px solid var(--line);
+    border-radius:9px; padding:7px 10px; color:var(--ink);}
+  .btn{font-family:inherit; font-weight:700; font-size:13.5px; border:none; border-radius:999px;
+    padding:12px 20px; cursor:pointer; background:var(--ink); color:#fff; transition:opacity .1s ease;}
+  .btn:hover{opacity:.85;}
+  .btn.ghost{background:transparent; color:var(--ink); border:1.5px solid var(--ink);}
+  .btnrow{display:flex; gap:10px; flex-wrap:wrap; padding:4px 0 14px;}
+  .hint{font-size:12.5px; color:var(--sub); margin-top:10px; line-height:1.55;}
+
+  details{margin-top:34px;}
+  details summary{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--sub); cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{content:"+"; font-size:14px;}
+  details[open] summary::after{content:"–";}
+  details .setcard{margin-top:12px;}
+  .rule-item{padding:12px 0; border-bottom:1px solid var(--line); font-size:13.5px; color:var(--sub);}
+  .rule-item:last-child{border-bottom:none;}
+  .rule-item b{color:var(--ink); font-weight:700;}
+
+  footer{margin-top:44px; font-size:12px; color:var(--dim); text-align:center;}
+
+  @media (max-width:480px){ .strip{grid-template-columns:repeat(12,1fr);} }
+  @media (prefers-reduced-motion:reduce){ .cell, .task input, .progress i{transition:none;} }
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<div class="frame">
+  <div class="chrome">
+    <div class="lights"><i></i><i></i><i></i></div>
+    <div class="glyphs">✳ — ☰</div>
+  </div>
+
+  <div class="inner">
+    <div class="hero-label" id="pillPhase">SAT · August 22, 2026</div>
+    <div class="hero"><span id="stDays">–</span><small>days left</small></div>
+    <div class="hero-sub">Target: R&W 750+ · Math 800 → 1550+. Eliminate one category of mistake.</div>
+    <div class="progress"><i id="progBar" style="width:0%"></i></div>
+    <div class="metaline">
+      <div><b id="stStreak">–</b> streak</div>
+      <div><b id="stDone">–</b> done</div>
+      <div><b id="stPct">–</b> complete</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="daydate" id="dcDate"></div>
+        <div class="chip" id="dcPhase"></div>
+      </div>
+      <div class="tasklist" id="dcTasks"></div>
+      <div id="dcExtra"></div>
+    </div>
+    <div class="navrow">
+      <button class="navbtn" id="prevBtn">← Prev</button>
+      <button class="navbtn mid" id="todayBtn">Today</button>
+      <button class="navbtn" id="nextBtn">Next →</button>
+    </div>
+
+    <h2>34 days</h2>
+    <div class="strip" id="strip"></div>
+    <div class="gridlegend">
+      <em>■ done</em><em>◻ ring = today</em><em>◻ bold border = full test</em><em>◻ dashed = Vietnam</em>
+    </div>
+
+    <h2>Reminders</h2>
+    <div class="setcard">
+      <div class="setrow">
+        <label>Daily reminder time<small>When your phone should nudge you</small></label>
+        <input type="time" id="remTime">
+      </div>
+      <div class="btnrow">
+        <button class="btn" id="icsBtn">Add to calendar</button>
+        <button class="btn ghost" id="notifBtn">Notifications</button>
+      </div>
+    </div>
+    <p class="hint">Import the .ics file once into Apple or Google Calendar → a notification every remaining day at your
+    chosen time, with that day's tasks inside the event. Works even when this page is closed.</p>
+
+    <details>
+      <summary>Ground rules</summary>
+      <div class="setcard">
+        <div class="rule-item"><b>Official only.</b> Reading drills = SAT Suite Question Bank → R&W → domain → Hard.</div>
+        <div class="rule-item"><b>Error log, same day.</b> One line per miss. Guessed-right counts as a miss.</div>
+        <div class="rule-item"><b>3 full tests.</b> PR Aug 8 · Bluebook Aug 12 · Bluebook rehearsal Aug 16. Spare modules = drill material.</div>
+        <div class="rule-item"><b>Vietnam Jul 29 – Aug 3.</b> Light mode is built in: Lexicon + 5 phone questions. The streak survives.</div>
+        <div class="rule-item"><b>Bad day?</b> Keep the Question Bank block. Everything else can slide.</div>
+        <div class="rule-item"><b>Never add hours.</b> If a checkpoint slips, narrow the focus, don't widen the schedule.</div>
+      </div>
+    </details>
+
+    <footer>1550 is arithmetic, not magic.</footer>
+  </div>
+</div>
+
+<script>
+(function(){
+  const TEST_DATE = new Date(2026,7,22);
+  const LS = { checks:"otuzdort.checks.v1", rem:"otuzdort.rem.v1" };
+  const fmtKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const LEX = "Lexicon 15 min — review queue first, keep the streak";
+  const VN1 = "Lexicon 15 min from your phone — the streak survives Vietnam";
+  const VN2 = "5 Question Bank questions on your phone, any domain — keep the thread alive";
+
+  const PLAN = [
+   {d:"2026-07-20", ph:"Week 1 · Bootcamp", tasks:[
+     "Read the 6 protocols once, out loud (30 min)",
+     "8 Question Bank: Info & Ideas → Hard, UNTIMED — reason out loud, protocols step by step",
+     "Add the 12 Barron's words to Lexicon (dispirited, nefarious, duplicitous, impervious…)",
+     LEX]},
+   {d:"2026-07-21", ph:"Week 1 · Bootcamp", tasks:[
+     "10 QB Info & Ideas Hard, untimed, protocols step by step",
+     "Error log every miss — same day, one line each",
+     LEX]},
+   {d:"2026-07-22", ph:"Week 1 · Bootcamp", tasks:[
+     "Khan Academy: quantitative Command of Evidence lessons (once, no rewatching)",
+     "10 QB graph questions — Protocol 2: cover the data, predict before choices",
+     LEX]},
+   {d:"2026-07-23", ph:"Week 1 · Bootcamp", tasks:[
+     "10 QB Info & Ideas Hard @ ~90 sec each",
+     "5 QB Words in Context Hard (Craft & Structure filter) — your Barron's patch",
+     LEX]},
+   {d:"2026-07-24", ph:"Week 1 · Bootcamp", tasks:[
+     "10 QB Info & Ideas Hard @ ~90 sec each",
+     "Math 20 min: write the personal formula card (vertex form, point-slope, your blanks)",
+     LEX]},
+   {d:"2026-07-25", ph:"Week 1 · Bootcamp", tasks:[
+     "12 QB Info & Ideas Hard",
+     "5 QB Words in Context Hard",
+     LEX]},
+   {d:"2026-07-26", ph:"Week 1 · Bootcamp", tasks:[
+     "10 QB inference / “logically completes” — Protocol 3: forced, not just compatible",
+     "Math 20 min: 10 vertex/parabola questions (PR or Barron's)",
+     LEX]},
+   {d:"2026-07-27", ph:"Week 2 · Volume", tasks:[
+     "10 QB Info & Ideas Hard, timed @ 75 sec each",
+     "8 QB rhetorical synthesis + transitions — Protocols 5–6: goal words first",
+     LEX]},
+   {d:"2026-07-28", ph:"Pre-trip", tasks:[
+     "10 QB Info & Ideas Hard @ 75 sec",
+     "20-min Standard English Conventions drill — boundaries + parentheses technique",
+     "Check Question Bank + Lexicon work on your phone for the trip",
+     LEX]},
+   {d:"2026-07-29", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
+   {d:"2026-07-30", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
+   {d:"2026-07-31", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
+   {d:"2026-08-01", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
+   {d:"2026-08-02", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
+   {d:"2026-08-03", ph:"Vietnam", vn:true, tasks:[VN1, VN2, "Good luck at the final! 🏆"]},
+   {d:"2026-08-04", ph:"Week 3 · Re-entry", tasks:[
+     "One mixed 27-question R&W module set, 32:00 on the clock",
+     "Re-read your error log from weeks 1–2",
+     LEX]},
+   {d:"2026-08-05", ph:"Week 3 · Mixed modules", tasks:[
+     "Mixed 27-question module set, 32:00",
+     "SEC maintenance 20 min",
+     LEX]},
+   {d:"2026-08-06", ph:"Week 3 · Mixed modules", tasks:[
+     "Mixed 27-question module set, 32:00",
+     LEX]},
+   {d:"2026-08-07", ph:"Week 3 · Mixed modules", tasks:[
+     "Redo every error-log question cold. Miss it again → sticky note on desk",
+     "Math 20 min: formula card drill",
+     LEX]},
+   {d:"2026-08-08", ph:"Full test", test:true, tasks:[
+     "FULL TEST — Princeton Review Test 1. 8:00 start, timed modules, official break only, phone in another room",
+     "Checkpoint: ≤ 6 R&W misses, max 2 in Info & Ideas",
+     "Tonight: nothing else. Review tomorrow"]},
+   {d:"2026-08-09", ph:"Review", tasks:[
+     "Deep review: every R&W miss → full error-log line, classify by domain",
+     "Math misses → onto the formula card",
+     LEX]},
+   {d:"2026-08-10", ph:"Week 4 · Test conditions", tasks:[
+     "R&W module pair back-to-back — endurance, no break between",
+     LEX]},
+   {d:"2026-08-11", ph:"Week 4 · Test conditions", tasks:[
+     "Targeted drill: 10 questions on whatever the error log says still bleeds",
+     LEX]},
+   {d:"2026-08-12", ph:"Full test", test:true, tasks:[
+     "FULL TEST — Bluebook, real conditions, 8:00 start",
+     "Checkpoint: ≤ 5 R&W misses = on track"]},
+   {d:"2026-08-13", ph:"Review", tasks:[
+     "Deep review + error log, classify by domain",
+     LEX]},
+   {d:"2026-08-14", ph:"Week 4 · Test conditions", tasks:[
+     "One full timed MATH module — confirm 0–1 misses",
+     "Targeted drill: 8 questions on the weakest remaining type",
+     LEX]},
+   {d:"2026-08-15", ph:"Light day", tasks:[
+     "8 QB Hard mixed, nothing heavy — bank sleep for tomorrow",
+     LEX]},
+   {d:"2026-08-16", ph:"Dress rehearsal", test:true, tasks:[
+     "FINAL FULL TEST — Bluebook, 8:00 sharp, full protocol. Last one",
+     "Checkpoint: ≤ 3 R&W misses = 1550+ territory. One test is noise; the trend is the signal"]},
+   {d:"2026-08-17", ph:"Taper", tasks:[
+     "Review rehearsal misses → error log",
+     "8 fresh QB Hard, mixed",
+     LEX]},
+   {d:"2026-08-18", ph:"Taper", tasks:[
+     "Error log IS the syllabus: redo everything ever logged",
+     "Re-read the Mastery Sheet slowly, margins included",
+     LEX]},
+   {d:"2026-08-19", ph:"Taper", tasks:[
+     "8 light questions, skim the 2-page Cheat Card",
+     "Logistics: ticket printed, ID checked, route known, Bluebook updated, calculator charged",
+     LEX]},
+   {d:"2026-08-20", ph:"Taper", tasks:[
+     "5–8 light questions. NOTHING new from today on",
+     "Sleep at test-day schedule tonight",
+     LEX]},
+   {d:"2026-08-21", ph:"Taper", tasks:[
+     "One easy warm-up set in the morning. Then stop. Seriously stop"]},
+   {d:"2026-08-22", ph:"Test day", test:true, tasks:[
+     "Wake at the rehearsed time, eat the rehearsal breakfast, arrive early",
+     "Stem first · plain claims · predict before choices · flag at 90 sec",
+     "Grammar goes fast, so the time is there. You've done this morning three times already"]}
+  ];
+
+  let checks = {};
+  try{ checks = JSON.parse(localStorage.getItem(LS.checks)||"{}"); }catch(e){}
+  let remTime = localStorage.getItem(LS.rem) || "17:00";
+  let viewIdx = null;
+
+  const parseKey = k => { const [y,m,dd]=k.split("-").map(Number); return new Date(y,m-1,dd); };
+  const todayKey = () => fmtKey(new Date());
+  const idxOf = k => PLAN.findIndex(p=>p.d===k);
+  const isDone = p => { const c=checks[p.d]||[]; return p.tasks.length>0 && p.tasks.every((_,i)=>c[i]); };
+
+  function render(){
+    const tk = todayKey();
+    let ti = idxOf(tk);
+    if(viewIdx===null) viewIdx = ti>=0 ? ti : (tk<PLAN[0].d ? 0 : PLAN.length-1);
+
+    const now = new Date(); now.setHours(0,0,0,0);
+    const daysLeft = Math.max(0, Math.round((TEST_DATE-now)/86400000));
+    document.getElementById("stDays").textContent = daysLeft;
+    if(ti>=0) document.getElementById("pillPhase").textContent = "SAT · Aug 22 · "+PLAN[ti].ph;
+
+    let doneCount=0;
+    PLAN.forEach(p=>{ if(isDone(p)) doneCount++; });
+    document.getElementById("stDone").textContent = doneCount+"/"+PLAN.length;
+    document.getElementById("stPct").textContent = Math.round(100*doneCount/PLAN.length)+"%";
+    document.getElementById("progBar").style.width = Math.round(100*doneCount/PLAN.length)+"%";
+    let streak=0;
+    if(ti>=0){
+      let start = isDone(PLAN[ti]) ? ti : ti-1;
+      for(let i=start;i>=0;i--){ if(isDone(PLAN[i])) streak++; else break; }
+    }
+    document.getElementById("stStreak").textContent = streak;
+
+    const strip = document.getElementById("strip"); strip.innerHTML="";
+    PLAN.forEach((p,i)=>{
+      const c=document.createElement("div");
+      c.className="cell";
+      const d=parseKey(p.d);
+      c.textContent = d.getDate();
+      if(p.d===tk) c.classList.add("today");
+      if(i===viewIdx) c.classList.add("viewing");
+      if(p.test) c.classList.add("testday");
+      if(p.vn) c.classList.add("vn");
+      if(isDone(p)) c.classList.add("done");
+      c.title = MON[d.getMonth()]+" "+d.getDate()+" — "+p.ph;
+      c.onclick = ()=>{ viewIdx=i; render(); };
+      strip.appendChild(c);
+    });
+
+    const p = PLAN[viewIdx];
+    const d = parseKey(p.d);
+    const isToday = p.d===tk;
+    document.getElementById("dcDate").textContent =
+      (isToday ? "Today · " : "") + DOW[d.getDay()]+", "+MON[d.getMonth()]+" "+d.getDate();
+    const phEl = document.getElementById("dcPhase");
+    phEl.textContent = p.ph;
+    phEl.className = "chip"+(p.vn ? " vn" : (p.test ? " test" : ""));
+
+    const tl = document.getElementById("dcTasks"); tl.innerHTML="";
+    p.tasks.forEach((t,i)=>{
+      const row=document.createElement("label"); row.className="task";
+      const cb=document.createElement("input"); cb.type="checkbox";
+      cb.checked = !!(checks[p.d]&&checks[p.d][i]);
+      if(cb.checked) row.classList.add("checked");
+      cb.onchange = ()=>{
+        checks[p.d]=checks[p.d]||[];
+        checks[p.d][i]=cb.checked;
+        localStorage.setItem(LS.checks, JSON.stringify(checks));
+        render();
+      };
+      const tx=document.createElement("div"); tx.className="tasktext"; tx.textContent=t;
+      row.appendChild(cb); row.appendChild(tx); tl.appendChild(row);
+    });
+
+    const extra=document.getElementById("dcExtra"); extra.innerHTML="";
+    if(isDone(p)){
+      const s=document.createElement("div"); s.className="doneBadge"; s.textContent="✓ Day complete";
+      extra.appendChild(s);
+    }
+
+    document.getElementById("prevBtn").disabled = viewIdx===0;
+    document.getElementById("nextBtn").disabled = viewIdx===PLAN.length-1;
+  }
+
+  document.getElementById("prevBtn").onclick=()=>{ if(viewIdx>0){viewIdx--; render();} };
+  document.getElementById("nextBtn").onclick=()=>{ if(viewIdx<PLAN.length-1){viewIdx++; render();} };
+  document.getElementById("todayBtn").onclick=()=>{ const i=idxOf(todayKey()); viewIdx = i>=0?i:viewIdx; render(); };
+
+  const remEl=document.getElementById("remTime");
+  remEl.value=remTime;
+  remEl.onchange=()=>{ remTime=remEl.value||"17:00"; localStorage.setItem(LS.rem, remTime); };
+
+  function icsEscape(s){ return s.replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\n/g,"\\n"); }
+  document.getElementById("icsBtn").onclick=()=>{
+    const [hh,mm]=(remTime||"17:00").split(":");
+    const tk=todayKey();
+    let ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SATPlan//EN","CALSCALE:GREGORIAN"];
+    PLAN.forEach(p=>{
+      if(p.d<tk) return;
+      const d=parseKey(p.d);
+      const dt=p.d.replace(/-/g,"")+"T"+hh.padStart(2,"0")+mm.padStart(2,"0")+"00";
+      const end=new Date(d); end.setHours(+hh,+mm+45);
+      const dtEnd=fmtKey(end).replace(/-/g,"")+"T"+String(end.getHours()).padStart(2,"0")+String(end.getMinutes()).padStart(2,"0")+"00";
+      const summary = p.test ? "SAT · FULL TEST DAY" : "SAT · "+p.ph;
+      ics.push("BEGIN:VEVENT",
+        "UID:satplan-"+p.d+"@yasemin",
+        "DTSTART:"+dt, "DTEND:"+dtEnd,
+        "SUMMARY:"+icsEscape(summary),
+        "DESCRIPTION:"+icsEscape(p.tasks.map((t,i)=>(i+1)+". "+t).join("\n")),
+        "BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:-PT0M","DESCRIPTION:"+icsEscape("SAT time — open today's plan"),"END:VALARM",
+        "END:VEVENT");
+    });
+    ics.push("END:VCALENDAR");
+    const blob=new Blob([ics.join("\r\n")],{type:"text/calendar"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="sat-plan.ics"; a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const notifBtn=document.getElementById("notifBtn");
+  function updNotifBtn(){
+    if(!("Notification" in window)){ notifBtn.textContent="Unavailable"; notifBtn.disabled=true; return; }
+    notifBtn.textContent = Notification.permission==="granted" ? "Notifications on ✓" : "Notifications";
+  }
+  notifBtn.onclick=()=>{ if("Notification" in window) Notification.requestPermission().then(updNotifBtn); };
+  updNotifBtn();
+  let lastFired="";
+  setInterval(()=>{
+    if(!("Notification" in window) || Notification.permission!=="granted") return;
+    const n=new Date();
+    const cur=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+    if(cur===remTime && lastFired!==todayKey()){
+      lastFired=todayKey();
+      const i=idxOf(todayKey());
+      if(i>=0) new Notification("SAT — today's plan", {body: PLAN[i].tasks.join(" · ")});
+    }
+  }, 30000);
+
+  render();
+})();
+</script>
+</body>
+</html>
