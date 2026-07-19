@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#E9EAEC">
 <title>SAT · Aug 22</title>
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -118,6 +120,33 @@
   .btnrow{display:flex; gap:10px; flex-wrap:wrap; padding:4px 0 14px;}
   .hint{font-size:12.5px; color:var(--sub); margin-top:10px; line-height:1.55;}
 
+  /* progress & log */
+  .logform{display:grid; grid-template-columns:1fr 76px 76px auto; gap:8px; padding:14px 0; align-items:end;}
+  .logform .f label{display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sub); margin-bottom:5px;}
+  .logform select, .logform input[type="number"]{
+    width:100%; font-family:inherit; font-size:14px; background:var(--bg); border:1px solid var(--line);
+    border-radius:9px; padding:9px 8px; color:var(--ink);}
+  .logform .btn{padding:11px 16px;}
+  .focus-chip{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700;
+    background:#FFC9A8; color:var(--ink); padding:6px 14px; border-radius:999px; margin-bottom:14px;}
+  .chartbox{padding:6px 0 12px;}
+  .chart-title{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sub); margin:10px 0 8px;}
+  .dombar{margin-bottom:12px;}
+  .dombar .lbl{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;}
+  .dombar .lbl b{font-weight:700;}
+  .dombar .lbl span{color:var(--sub);}
+  .dombar .track{height:10px; background:rgba(16,17,19,.07); border-radius:999px; overflow:hidden;}
+  .dombar .fill{height:100%; border-radius:999px;}
+  .trend{width:100%; height:auto; display:block;}
+  .entries{max-height:180px; overflow-y:auto; margin-top:4px;}
+  .entry{display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:12.5px;
+    color:var(--sub); padding:7px 0; border-bottom:1px solid var(--line);}
+  .entry b{color:var(--ink); font-weight:600;}
+  .entry .del{background:none; border:none; color:var(--dim); cursor:pointer; font-size:15px; padding:2px 6px;}
+  .entry .del:hover{color:var(--ink);}
+  .empty{font-size:13px; color:var(--dim); padding:10px 0 16px;}
+  @media (max-width:480px){ .logform{grid-template-columns:1fr 1fr; } .logform .f.dom{grid-column:1/-1;} }
+
   details{margin-top:34px;}
   details summary{font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
     color:var(--sub); cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px;}
@@ -175,6 +204,35 @@
       <em>■ done</em><em>◻ ring = today</em><em>◻ bold border = full test</em><em>◻ dashed = Vietnam</em>
     </div>
 
+    <h2>Progress</h2>
+    <div id="focusWrap"></div>
+    <div class="setcard">
+      <div class="logform">
+        <div class="f dom"><label>Domain</label>
+          <select id="lgDom">
+            <option value="ii">Info & Ideas</option>
+            <option value="cs">Craft & Structure</option>
+            <option value="eoi">Expression of Ideas</option>
+            <option value="sec">Std. English Conv.</option>
+            <option value="math">Math</option>
+          </select>
+        </div>
+        <div class="f"><label>Questions</label><input type="number" id="lgQ" min="1" max="99" placeholder="10"></div>
+        <div class="f"><label>Wrong</label><input type="number" id="lgW" min="0" max="99" placeholder="0"></div>
+        <div class="f"><button class="btn" id="lgAdd">Log</button></div>
+      </div>
+      <div class="chartbox">
+        <div class="chart-title">Accuracy by domain</div>
+        <div id="domBars"></div>
+        <div class="chart-title">Accuracy over time</div>
+        <div id="trendWrap"></div>
+        <div class="chart-title">Recent sessions</div>
+        <div class="entries" id="entries"></div>
+      </div>
+    </div>
+    <p class="hint">Log every drill and every full-test module right after review — per domain, total questions and misses.
+    The orange chip tells you where the plan's focus should shift.</p>
+
     <h2>Reminders</h2>
     <div class="setcard">
       <div class="setrow">
@@ -197,7 +255,7 @@
         <div class="rule-item"><b>3 full tests.</b> PR Aug 8 · Bluebook Aug 12 · Bluebook rehearsal Aug 16. Spare modules = drill material.</div>
         <div class="rule-item"><b>Vietnam Jul 29 – Aug 3.</b> Light mode is built in: Lexicon + 5 phone questions. The streak survives.</div>
         <div class="rule-item"><b>Bad day?</b> Keep the Question Bank block. Everything else can slide.</div>
-        <div class="rule-item"><b>Never add hours.</b> If a checkpoint slips, narrow the focus, don't widen the schedule.</div>
+        <div class="rule-item"><b>Volume has a quality gate.</b> ~25–35 official questions per weekday is the ceiling — and only counts if every miss is logged in Progress + error log. Unlogged volume is the old tutor's method.</div>
       </div>
     </details>
 
@@ -223,35 +281,37 @@
      "Add the 12 Barron's words to Lexicon (dispirited, nefarious, duplicitous, impervious…)",
      LEX]},
    {d:"2026-07-21", ph:"Week 1 · Bootcamp", tasks:[
-     "10 QB Info & Ideas Hard, untimed, protocols step by step",
+     "15 QB Info & Ideas Hard, untimed, protocols step by step",
      "Error log every miss — same day, one line each",
      LEX]},
    {d:"2026-07-22", ph:"Week 1 · Bootcamp", tasks:[
      "Khan Academy: quantitative Command of Evidence lessons (once, no rewatching)",
-     "10 QB graph questions — Protocol 2: cover the data, predict before choices",
+     "12 QB graph questions — Protocol 2: cover the data, predict before choices",
      LEX]},
    {d:"2026-07-23", ph:"Week 1 · Bootcamp", tasks:[
-     "10 QB Info & Ideas Hard @ ~90 sec each",
-     "5 QB Words in Context Hard (Craft & Structure filter) — your Barron's patch",
+     "15 QB Info & Ideas Hard @ ~90 sec each",
+     "6 QB Words in Context Hard (Craft & Structure filter) — your Barron's patch",
      LEX]},
    {d:"2026-07-24", ph:"Week 1 · Bootcamp", tasks:[
-     "10 QB Info & Ideas Hard @ ~90 sec each",
+     "15 QB Info & Ideas Hard @ ~90 sec each",
      "Math 20 min: write the personal formula card (vertex form, point-slope, your blanks)",
      LEX]},
    {d:"2026-07-25", ph:"Week 1 · Bootcamp", tasks:[
-     "12 QB Info & Ideas Hard",
-     "5 QB Words in Context Hard",
+     "15 QB Info & Ideas Hard",
+     "6 QB Words in Context Hard",
+     "5 QB inference Hard",
      LEX]},
    {d:"2026-07-26", ph:"Week 1 · Bootcamp", tasks:[
-     "10 QB inference / “logically completes” — Protocol 3: forced, not just compatible",
+     "14 QB inference / “logically completes” — Protocol 3: forced, not just compatible",
      "Math 20 min: 10 vertex/parabola questions (PR or Barron's)",
      LEX]},
    {d:"2026-07-27", ph:"Week 2 · Volume", tasks:[
-     "10 QB Info & Ideas Hard, timed @ 75 sec each",
+     "15 QB Info & Ideas Hard, timed @ 75 sec each",
      "8 QB rhetorical synthesis + transitions — Protocols 5–6: goal words first",
      LEX]},
    {d:"2026-07-28", ph:"Pre-trip", tasks:[
-     "10 QB Info & Ideas Hard @ 75 sec",
+     "12 QB Info & Ideas Hard @ 75 sec",
+     "6 QB rhetorical synthesis + transitions",
      "20-min Standard English Conventions drill — boundaries + parentheses technique",
      "Check Question Bank + Lexicon work on your phone for the trip",
      LEX]},
@@ -263,14 +323,17 @@
    {d:"2026-08-03", ph:"Vietnam", vn:true, tasks:[VN1, VN2, "Good luck at the final! 🏆"]},
    {d:"2026-08-04", ph:"Week 3 · Re-entry", tasks:[
      "One mixed 27-question R&W module set, 32:00 on the clock",
+     "10 targeted QB Hard on your weakest domain — check the Progress chart",
      "Re-read your error log from weeks 1–2",
      LEX]},
    {d:"2026-08-05", ph:"Week 3 · Mixed modules", tasks:[
      "Mixed 27-question module set, 32:00",
+     "8 targeted QB Hard (Progress chart decides the domain)",
      "SEC maintenance 20 min",
      LEX]},
    {d:"2026-08-06", ph:"Week 3 · Mixed modules", tasks:[
      "Mixed 27-question module set, 32:00",
+     "10 targeted QB Hard (Progress chart decides)",
      LEX]},
    {d:"2026-08-07", ph:"Week 3 · Mixed modules", tasks:[
      "Redo every error-log question cold. Miss it again → sticky note on desk",
@@ -288,7 +351,7 @@
      "R&W module pair back-to-back — endurance, no break between",
      LEX]},
    {d:"2026-08-11", ph:"Week 4 · Test conditions", tasks:[
-     "Targeted drill: 10 questions on whatever the error log says still bleeds",
+     "Targeted drill: 15 questions on whatever the Progress chart + error log say still bleeds",
      LEX]},
    {d:"2026-08-12", ph:"Full test", test:true, tasks:[
      "FULL TEST — Bluebook, real conditions, 8:00 start",
@@ -447,6 +510,94 @@
     a.href=URL.createObjectURL(blob); a.download="sat-plan.ics"; a.click();
     URL.revokeObjectURL(a.href);
   };
+
+  // ---- Progress log & charts ----
+  const DOMS = {ii:"Info & Ideas", cs:"Craft & Structure", eoi:"Expression of Ideas", sec:"Std. English Conv.", math:"Math"};
+  const DOMCOL = {ii:"#AFC4FF", cs:"#FFC9A8", eoi:"#E3C4FF", sec:"#BFE3C0", math:"#F2D488"};
+  const LSLOG = "otuzdort.log.v1";
+  let log = [];
+  try{ log = JSON.parse(localStorage.getItem(LSLOG)||"[]"); }catch(e){}
+  const saveLog = ()=> localStorage.setItem(LSLOG, JSON.stringify(log));
+
+  function renderProgress(){
+    // domain bars
+    const agg = {};
+    log.forEach(e=>{ agg[e.dom]=agg[e.dom]||{q:0,w:0}; agg[e.dom].q+=e.q; agg[e.dom].w+=e.w; });
+    const bars = document.getElementById("domBars"); bars.innerHTML="";
+    let worst=null;
+    Object.keys(DOMS).forEach(k=>{
+      if(!agg[k]) return;
+      const a=agg[k], acc=Math.round(100*(a.q-a.w)/a.q);
+      if(a.q>=15 && acc<85 && (!worst || acc<worst.acc)) worst={k,acc};
+      const el=document.createElement("div"); el.className="dombar";
+      el.innerHTML = '<div class="lbl"><b>'+DOMS[k]+'</b><span>'+acc+'% · '+a.w+' wrong / '+a.q+'</span></div>'+
+        '<div class="track"><div class="fill" style="width:'+acc+'%;background:'+DOMCOL[k]+'"></div></div>';
+      bars.appendChild(el);
+    });
+    if(!log.length) bars.innerHTML='<div class="empty">Log your first session and the charts appear here.</div>';
+
+    // focus chip
+    const fw=document.getElementById("focusWrap"); fw.innerHTML="";
+    if(worst){
+      const c=document.createElement("div"); c.className="focus-chip";
+      c.textContent="→ Focus: "+DOMS[worst.k]+" ("+worst.acc+"%) — point tomorrow's drill here";
+      fw.appendChild(c);
+    }
+
+    // trend line (aggregate by date, overall accuracy)
+    const byDate={};
+    log.forEach(e=>{ byDate[e.d]=byDate[e.d]||{q:0,w:0}; byDate[e.d].q+=e.q; byDate[e.d].w+=e.w; });
+    const dates=Object.keys(byDate).sort();
+    const tw=document.getElementById("trendWrap"); tw.innerHTML="";
+    if(dates.length>=2){
+      const W=320,H=110,P=14;
+      const pts=dates.map((dt,i)=>{
+        const a=byDate[dt], acc=100*(a.q-a.w)/a.q;
+        const x=P+(W-2*P)*i/(dates.length-1);
+        const y=P+(H-2*P)*(1-(acc-50)/50);           // 50%..100% scale
+        return [x, Math.min(H-P, Math.max(P, y)), Math.round(acc), dt];
+      });
+      const poly=pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+      let svg='<svg class="trend" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';
+      [100,75,50].forEach(v=>{
+        const y=P+(H-2*P)*(1-(v-50)/50);
+        svg+='<line x1="'+P+'" y1="'+y+'" x2="'+(W-P)+'" y2="'+y+'" stroke="rgba(16,17,19,.08)" stroke-width="1"/>';
+        svg+='<text x="0" y="'+(y+3)+'" font-size="8" fill="#9DA1A8">'+v+'</text>';
+      });
+      svg+='<polyline points="'+poly+'" fill="none" stroke="#101113" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      pts.forEach(p=>{ svg+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3" fill="#101113"/>'; });
+      const last=pts[pts.length-1];
+      svg+='<text x="'+Math.min(last[0]+5,W-24)+'" y="'+(last[1]-6)+'" font-size="9" font-weight="700" fill="#101113">'+last[2]+'%</text>';
+      svg+='</svg>';
+      tw.innerHTML=svg;
+    } else {
+      tw.innerHTML='<div class="empty">Two days of logs and the trend line appears.</div>';
+    }
+
+    // entries list
+    const en=document.getElementById("entries"); en.innerHTML="";
+    log.slice().reverse().slice(0,20).forEach((e)=>{
+      const idx=log.indexOf(e);
+      const row=document.createElement("div"); row.className="entry";
+      const acc=Math.round(100*(e.q-e.w)/e.q);
+      row.innerHTML='<div><b>'+DOMS[e.dom]+'</b> · '+e.q+' q, '+e.w+' wrong ('+acc+'%) <span>· '+e.d.slice(5)+'</span></div>';
+      const del=document.createElement("button"); del.className="del"; del.textContent="×";
+      del.onclick=()=>{ log.splice(idx,1); saveLog(); renderProgress(); };
+      row.appendChild(del);
+      en.appendChild(row);
+    });
+  }
+
+  document.getElementById("lgAdd").onclick=()=>{
+    const q=parseInt(document.getElementById("lgQ").value,10);
+    const w=parseInt(document.getElementById("lgW").value,10);
+    if(!q || q<1 || isNaN(w) || w<0 || w>q) return;
+    log.push({d:todayKey(), dom:document.getElementById("lgDom").value, q:q, w:w});
+    saveLog();
+    document.getElementById("lgQ").value=""; document.getElementById("lgW").value="";
+    renderProgress();
+  };
+  renderProgress();
 
   const notifBtn=document.getElementById("notifBtn");
   function updNotifBtn(){
