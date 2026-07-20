@@ -28,11 +28,30 @@
     background-size:88px 88px;
     position:relative; overflow-x:hidden;
   }
-  /* blurred gradient blobs */
-  .blob{position:fixed; border-radius:50%; filter:blur(90px); z-index:0; pointer-events:none;}
-  .b1{width:420px; height:420px; background:#FFC9A8; opacity:.55; top:-80px; right:-120px;}
-  .b2{width:380px; height:380px; background:#AFC4FF; opacity:.5; bottom:-60px; left:-140px;}
-  .b3{width:300px; height:300px; background:#E3C4FF; opacity:.45; top:38%; right:-100px;}
+  /* blurred gradient blobs — slow drift */
+  .blob{position:fixed; border-radius:50%; filter:blur(90px); z-index:0; pointer-events:none;
+    will-change:transform;}
+  .b1{width:420px; height:420px; background:#FFC9A8; opacity:.55; top:-80px; right:-120px;
+    animation:drift1 26s ease-in-out infinite alternate;}
+  .b2{width:380px; height:380px; background:#AFC4FF; opacity:.5; bottom:-60px; left:-140px;
+    animation:drift2 32s ease-in-out infinite alternate;}
+  .b3{width:300px; height:300px; background:#E3C4FF; opacity:.45; top:38%; right:-100px;
+    animation:drift3 38s ease-in-out infinite alternate;}
+  @keyframes drift1{
+    0%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(-90px,70px) scale(1.15);}
+    100%{transform:translate(40px,140px) scale(.95);}
+  }
+  @keyframes drift2{
+    0%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(110px,-80px) scale(1.1);}
+    100%{transform:translate(30px,-150px) scale(1.2);}
+  }
+  @keyframes drift3{
+    0%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(-130px,-60px) scale(1.25);}
+    100%{transform:translate(-60px,90px) scale(1);}
+  }
 
   .frame{
     position:relative; z-index:1; max-width:600px; margin:0 auto;
@@ -84,6 +103,17 @@
   .doneBadge{margin:2px 18px 14px; display:inline-flex; align-items:center; gap:7px;
     font-size:12.5px; font-weight:700; color:#fff; background:var(--ink);
     padding:6px 14px; border-radius:999px;}
+  /* daily unknown-words note */
+  .wordsbox{border-top:1px solid var(--line); padding:12px 18px 16px;}
+  .words-title{font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--sub); margin-bottom:8px;}
+  .wordsbox textarea{width:100%; min-height:52px; font-family:inherit; font-size:13.5px; line-height:1.5;
+    background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:9px 11px;
+    color:var(--ink); resize:vertical;}
+  .wordsbox textarea:focus{outline:none; border-color:rgba(16,17,19,.35);}
+  .bank-day{padding:10px 0; border-bottom:1px solid var(--line); font-size:13px;}
+  .bank-day:last-child{border-bottom:none;}
+  .bank-day b{font-weight:700; font-size:12px; color:var(--sub); display:block; margin-bottom:3px;}
+  .bank-count{font-weight:400; color:var(--dim); letter-spacing:0; text-transform:none;}
   .navrow{display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding:0 4px;}
   .navbtn{font-family:inherit; font-size:13px; font-weight:600; background:none; border:none;
     color:var(--sub); cursor:pointer; padding:8px 6px;}
@@ -191,6 +221,10 @@
       </div>
       <div class="tasklist" id="dcTasks"></div>
       <div id="dcExtra"></div>
+      <div class="wordsbox">
+        <div class="words-title">Words I didn't know today</div>
+        <textarea id="dcWords" placeholder="one word per line — they collect in the Word bank below"></textarea>
+      </div>
     </div>
     <div class="navrow">
       <button class="navbtn" id="prevBtn">← Prev</button>
@@ -248,6 +282,11 @@
     chosen time, with that day's tasks inside the event. Works even when this page is closed.</p>
 
     <details>
+      <summary>Word bank <span class="bank-count" id="bankCount"></span></summary>
+      <div class="setcard" id="bankList"></div>
+    </details>
+
+    <details>
       <summary>Ground rules</summary>
       <div class="setcard">
         <div class="rule-item"><b>Official only.</b> Reading drills = SAT Suite Question Bank → R&W → domain → Hard.</div>
@@ -256,6 +295,8 @@
         <div class="rule-item"><b>Vietnam Jul 29 – Aug 3.</b> Light mode is built in: Lexicon + 5 phone questions. The streak survives.</div>
         <div class="rule-item"><b>Bad day?</b> Keep the Question Bank block. Everything else can slide.</div>
         <div class="rule-item"><b>Volume has a quality gate.</b> ~25–35 official questions per weekday is the ceiling — and only counts if every miss is logged in Progress + error log. Unlogged volume is the old tutor's method.</div>
+        <div class="rule-item"><b>Tutor homework backlog.</b> All 32 unfinished tutor hws are scheduled into the plan, matched to each day's theme. Files live in Drive → SAT English, sorted by category. Answers go into the SAT doc, misses into Progress + error log.</div>
+        <div class="rule-item"><b>New tutor hws.</b> Lesson is weekly, 5 hws each — when new ones arrive they replace that week's QB drills of the same category, not stack on top.</div>
       </div>
     </details>
 
@@ -266,7 +307,7 @@
 <script>
 (function(){
   const TEST_DATE = new Date(2026,7,22);
-  const LS = { checks:"otuzdort.checks.v1", rem:"otuzdort.rem.v1" };
+  const LS = { checks:"otuzdort.checks.v1", rem:"otuzdort.rem.v1", words:"otuzdort.words.v1" };
   const fmtKey = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   const DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -279,40 +320,49 @@
      "Read the 6 protocols once, out loud (30 min)",
      "8 Question Bank: Info & Ideas → Hard, UNTIMED — reason out loud, protocols step by step",
      "Add the 12 Barron's words to Lexicon (dispirited, nefarious, duplicitous, impervious…)",
+     "Tutor hw 17 — central ideas (9 q)",
      LEX]},
    {d:"2026-07-21", ph:"Week 1 · Bootcamp", tasks:[
      "15 QB Info & Ideas Hard, untimed, protocols step by step",
      "Error log every miss — same day, one line each",
+     "Tutor hw 68 + hw 66 — central ideas (8+8 q)",
      LEX]},
    {d:"2026-07-22", ph:"Week 1 · Bootcamp", tasks:[
      "Khan Academy: quantitative Command of Evidence lessons (once, no rewatching)",
      "12 QB graph questions — Protocol 2: cover the data, predict before choices",
+     "Tutor hw 303 — command of evidence (28 q)",
      LEX]},
    {d:"2026-07-23", ph:"Week 1 · Bootcamp", tasks:[
      "15 QB Info & Ideas Hard @ ~90 sec each",
      "6 QB Words in Context Hard (Craft & Structure filter) — your Barron's patch",
+     "Tutor hw 61 + hw 20 — words in context (16+12 q)",
      LEX]},
    {d:"2026-07-24", ph:"Week 1 · Bootcamp", tasks:[
      "15 QB Info & Ideas Hard @ ~90 sec each",
      "Math 20 min: write the personal formula card (vertex form, point-slope, your blanks)",
+     "Tutor hw 631 — words in context (30 q)",
      LEX]},
    {d:"2026-07-25", ph:"Week 1 · Bootcamp", tasks:[
      "15 QB Info & Ideas Hard",
      "6 QB Words in Context Hard",
      "5 QB inference Hard",
+     "Tutor hw 21 + hw 28 — text structure & purpose",
      LEX]},
    {d:"2026-07-26", ph:"Week 1 · Bootcamp", tasks:[
      "14 QB inference / “logically completes” — Protocol 3: forced, not just compatible",
      "Math 20 min: 10 vertex/parabola questions (PR or Barron's)",
+     "Tutor hw 504 — cross-text connections (20 q)",
      LEX]},
    {d:"2026-07-27", ph:"Week 2 · Volume", tasks:[
      "15 QB Info & Ideas Hard, timed @ 75 sec each",
      "8 QB rhetorical synthesis + transitions — Protocols 5–6: goal words first",
+     "Tutor hw 357 + hw 30 — transitions (~10 q each)",
      LEX]},
    {d:"2026-07-28", ph:"Pre-trip", tasks:[
      "12 QB Info & Ideas Hard @ 75 sec",
      "6 QB rhetorical synthesis + transitions",
      "20-min Standard English Conventions drill — boundaries + parentheses technique",
+     "Tutor hw 356 + hw 368 — boundaries & punctuation",
      "Check Question Bank + Lexicon work on your phone for the trip",
      LEX]},
    {d:"2026-07-29", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
@@ -322,22 +372,26 @@
    {d:"2026-08-02", ph:"Vietnam", vn:true, tasks:[VN1, VN2]},
    {d:"2026-08-03", ph:"Vietnam", vn:true, tasks:[VN1, VN2, "Good luck at the final! 🏆"]},
    {d:"2026-08-04", ph:"Week 3 · Re-entry", tasks:[
-     "One mixed 27-question R&W module set, 32:00 on the clock",
+     "One mixed 27-question R&W module set, 32:00 on the clock (use test 9 rw1 from Drive)",
      "10 targeted QB Hard on your weakest domain — check the Progress chart",
      "Re-read your error log from weeks 1–2",
+     "Tutor hw 651 + hw 311 — cross-text (11+12 q)",
      LEX]},
    {d:"2026-08-05", ph:"Week 3 · Mixed modules", tasks:[
-     "Mixed 27-question module set, 32:00",
+     "Mixed 27-question module set, 32:00 (use test 9 rw2 from Drive)",
      "8 targeted QB Hard (Progress chart decides the domain)",
      "SEC maintenance 20 min",
+     "Tutor hw 541 — transitions (30 q)",
      LEX]},
    {d:"2026-08-06", ph:"Week 3 · Mixed modules", tasks:[
-     "Mixed 27-question module set, 32:00",
+     "Mixed 27-question module set, 32:00 (use test 30 rw1 from Drive)",
      "10 targeted QB Hard (Progress chart decides)",
+     "Tutor hw 29 — cross-text · hw 36 — rhetorical synthesis",
      LEX]},
    {d:"2026-08-07", ph:"Week 3 · Mixed modules", tasks:[
      "Redo every error-log question cold. Miss it again → sticky note on desk",
      "Math 20 min: formula card drill",
+     "Tutor hw 363 — verb tense · hw 359 — modification",
      LEX]},
    {d:"2026-08-08", ph:"Full test", test:true, tasks:[
      "FULL TEST — Princeton Review Test 1. 8:00 start, timed modules, official break only, phone in another room",
@@ -346,25 +400,31 @@
    {d:"2026-08-09", ph:"Review", tasks:[
      "Deep review: every R&W miss → full error-log line, classify by domain",
      "Math misses → onto the formula card",
+     "Tutor hw 52 — parallel structure · hw 35 — rhet. synthesis (4 q)",
      LEX]},
    {d:"2026-08-10", ph:"Week 4 · Test conditions", tasks:[
-     "R&W module pair back-to-back — endurance, no break between",
+     "R&W module pair back-to-back — endurance, no break between (test 30 rw2 + test 39 rw2)",
+     "Tutor hw 44 — mixed conventions (18 q)",
      LEX]},
    {d:"2026-08-11", ph:"Week 4 · Test conditions", tasks:[
      "Targeted drill: 15 questions on whatever the Progress chart + error log say still bleeds",
+     "Tutor hw 40 — mixed verb/modification (12 q)",
      LEX]},
    {d:"2026-08-12", ph:"Full test", test:true, tasks:[
      "FULL TEST — Bluebook, real conditions, 8:00 start",
      "Checkpoint: ≤ 5 R&W misses = on track"]},
    {d:"2026-08-13", ph:"Review", tasks:[
      "Deep review + error log, classify by domain",
+     "Tutor hw 552 — rhetorical synthesis (30 q — split over 2 days if heavy)",
      LEX]},
    {d:"2026-08-14", ph:"Week 4 · Test conditions", tasks:[
      "One full timed MATH module — confirm 0–1 misses",
      "Targeted drill: 8 questions on the weakest remaining type",
+     "Tutor hw 367 + hw 369 — boundaries (apostrophes & punctuation)",
      LEX]},
    {d:"2026-08-15", ph:"Light day", tasks:[
      "8 QB Hard mixed, nothing heavy — bank sleep for tomorrow",
+     "Tutor hw 366 — lists & punctuation (light)",
      LEX]},
    {d:"2026-08-16", ph:"Dress rehearsal", test:true, tasks:[
      "FINAL FULL TEST — Bluebook, 8:00 sharp, full protocol. Last one",
@@ -372,14 +432,17 @@
    {d:"2026-08-17", ph:"Taper", tasks:[
      "Review rehearsal misses → error log",
      "8 fresh QB Hard, mixed",
+     "Tutor hw 522 — boundaries (26 q)",
      LEX]},
    {d:"2026-08-18", ph:"Taper", tasks:[
      "Error log IS the syllabus: redo everything ever logged",
      "Re-read the Mastery Sheet slowly, margins included",
+     "Tutor hw 360 — boundaries",
      LEX]},
    {d:"2026-08-19", ph:"Taper", tasks:[
      "8 light questions, skim the 2-page Cheat Card",
      "Logistics: ticket printed, ID checked, route known, Bluebook updated, calculator charged",
+     "Tutor hw 361 — boundaries (quick set, last one 🎉)",
      LEX]},
    {d:"2026-08-20", ph:"Taper", tasks:[
      "5–8 light questions. NOTHING new from today on",
@@ -395,6 +458,8 @@
 
   let checks = {};
   try{ checks = JSON.parse(localStorage.getItem(LS.checks)||"{}"); }catch(e){}
+  let words = {};
+  try{ words = JSON.parse(localStorage.getItem(LS.words)||"{}"); }catch(e){}
   let remTime = localStorage.getItem(LS.rem) || "17:00";
   let viewIdx = null;
 
@@ -472,9 +537,36 @@
       extra.appendChild(s);
     }
 
+    const wEl=document.getElementById("dcWords");
+    wEl.value = words[p.d]||"";
+    wEl.oninput = ()=>{
+      if(wEl.value.trim()) words[p.d]=wEl.value; else delete words[p.d];
+      localStorage.setItem(LS.words, JSON.stringify(words));
+      renderBank();
+    };
+
     document.getElementById("prevBtn").disabled = viewIdx===0;
     document.getElementById("nextBtn").disabled = viewIdx===PLAN.length-1;
   }
+
+  function renderBank(){
+    const list=document.getElementById("bankList");
+    const dates=Object.keys(words).sort().reverse();
+    let total=0;
+    list.innerHTML="";
+    dates.forEach(k=>{
+      const items=words[k].split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
+      total+=items.length;
+      const d=parseKey(k);
+      const row=document.createElement("div"); row.className="bank-day";
+      const h=document.createElement("b"); h.textContent=MON[d.getMonth()]+" "+d.getDate();
+      const body=document.createElement("div"); body.textContent=items.join(" · ");
+      row.appendChild(h); row.appendChild(body); list.appendChild(row);
+    });
+    if(!dates.length) list.innerHTML='<div class="empty">Words you type on any day show up here — your personal Lexicon feed.</div>';
+    document.getElementById("bankCount").textContent = total ? "· "+total+" words" : "";
+  }
+  renderBank();
 
   document.getElementById("prevBtn").onclick=()=>{ if(viewIdx>0){viewIdx--; render();} };
   document.getElementById("nextBtn").onclick=()=>{ if(viewIdx<PLAN.length-1){viewIdx++; render();} };
